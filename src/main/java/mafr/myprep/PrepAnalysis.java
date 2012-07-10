@@ -11,7 +11,7 @@ public class PrepAnalysis {
 
 	private static final Comparator<TipoRegistro> TIPO_REGISTRO_ORDER_COMPARATOR = new Comparator<TipoRegistro>() {
 		public int compare(TipoRegistro o1, TipoRegistro o2) {
-			if(o1.toString().split(" ").length == o2.toString().split(" ").length) {
+			if (o1.toString().split(" ").length == o2.toString().split(" ").length) {
 				return o1.toString().compareTo(o2.toString());
 			}
 			return new Integer(o1.toString().split(" ").length).compareTo(o2.toString().split(" ").length);
@@ -114,40 +114,38 @@ public class PrepAnalysis {
 
 	public void finish() {
 		stats.put(new TipoRegistro(Criterio.TODOS),
-				addStats(
-						new TipoRegistro(Criterio.COMPLETO), 
-						new TipoRegistro(Criterio.INCOMPLETO)));
-		
-		stats.put(new TipoRegistro(Criterio.CONTABILIZADO),
-				addStats(
-						new TipoRegistro(Criterio.COMPLETO, Criterio.CONTABILIZADO), 
-						new TipoRegistro(Criterio.INCOMPLETO, Criterio.CONTABILIZADO)));
+				addStats(new TipoRegistro(Criterio.COMPLETO), new TipoRegistro(Criterio.INCOMPLETO)));
+
+		stats.put(
+				new TipoRegistro(Criterio.CONTABILIZADO),
+				addStats(new TipoRegistro(Criterio.COMPLETO, Criterio.CONTABILIZADO), new TipoRegistro(
+						Criterio.INCOMPLETO, Criterio.CONTABILIZADO)));
 		stats.put(
 				new TipoRegistro(Criterio.SIN_CONTABILIZAR),
-				addStats(
-						new TipoRegistro(Criterio.COMPLETO, Criterio.SIN_CONTABILIZAR), 
-						new TipoRegistro(Criterio.INCOMPLETO, Criterio.SIN_CONTABILIZAR)));
+				addStats(new TipoRegistro(Criterio.COMPLETO, Criterio.SIN_CONTABILIZAR), new TipoRegistro(
+						Criterio.INCOMPLETO, Criterio.SIN_CONTABILIZAR)));
 
 		stats.put(
 				new TipoRegistro(Criterio.CASILLA_ESPECIAL, Criterio.CONTABILIZADO),
-				addStats(
-						new TipoRegistro(Criterio.COMPLETO, Criterio.CONTABILIZADO, Criterio.CASILLA_ESPECIAL), 
+				addStats(new TipoRegistro(Criterio.COMPLETO, Criterio.CONTABILIZADO, Criterio.CASILLA_ESPECIAL),
 						new TipoRegistro(Criterio.INCOMPLETO, Criterio.CONTABILIZADO, Criterio.CASILLA_ESPECIAL)));
 
 		stats.put(
 				new TipoRegistro(Criterio.CASILLA_EXTRAORDINARIA, Criterio.CONTABILIZADO),
-				addStats(
-						new TipoRegistro(Criterio.COMPLETO, Criterio.CONTABILIZADO, Criterio.CASILLA_EXTRAORDINARIA), 
+				addStats(new TipoRegistro(Criterio.COMPLETO, Criterio.CONTABILIZADO, Criterio.CASILLA_EXTRAORDINARIA),
 						new TipoRegistro(Criterio.INCOMPLETO, Criterio.CONTABILIZADO, Criterio.CASILLA_EXTRAORDINARIA)));
 
-		stats.put(new TipoRegistro(Criterio.SIN_CONTABILIZAR, Criterio.INVALIDO),
-				addStats(
-						new TipoRegistro(Criterio.COMPLETO, Criterio.SIN_CONTABILIZAR, Criterio.CASILLA_NORMAL, Criterio.INVALIDO), 
-						new TipoRegistro(Criterio.COMPLETO, Criterio.SIN_CONTABILIZAR, Criterio.CASILLA_EXTRAORDINARIA, Criterio.INVALIDO), 
-						new TipoRegistro(Criterio.COMPLETO, Criterio.SIN_CONTABILIZAR, Criterio.CASILLA_ESPECIAL, Criterio.INVALIDO), 
-						new TipoRegistro(Criterio.INCOMPLETO, Criterio.SIN_CONTABILIZAR, Criterio.CASILLA_NORMAL, Criterio.INVALIDO), 
-						new TipoRegistro(Criterio.INCOMPLETO, Criterio.SIN_CONTABILIZAR, Criterio.CASILLA_EXTRAORDINARIA, Criterio.INVALIDO), 
-						new TipoRegistro(Criterio.INCOMPLETO, Criterio.SIN_CONTABILIZAR, Criterio.CASILLA_ESPECIAL, Criterio.INVALIDO)));
+		stats.put(
+				new TipoRegistro(Criterio.SIN_CONTABILIZAR, Criterio.INVALIDO),
+				addStats(new TipoRegistro(Criterio.COMPLETO, Criterio.SIN_CONTABILIZAR, Criterio.CASILLA_NORMAL,
+						Criterio.INVALIDO), new TipoRegistro(Criterio.COMPLETO, Criterio.SIN_CONTABILIZAR,
+						Criterio.CASILLA_EXTRAORDINARIA, Criterio.INVALIDO), new TipoRegistro(Criterio.COMPLETO,
+						Criterio.SIN_CONTABILIZAR, Criterio.CASILLA_ESPECIAL, Criterio.INVALIDO), new TipoRegistro(
+						Criterio.INCOMPLETO, Criterio.SIN_CONTABILIZAR, Criterio.CASILLA_NORMAL, Criterio.INVALIDO),
+						new TipoRegistro(Criterio.INCOMPLETO, Criterio.SIN_CONTABILIZAR,
+								Criterio.CASILLA_EXTRAORDINARIA, Criterio.INVALIDO), new TipoRegistro(
+								Criterio.INCOMPLETO, Criterio.SIN_CONTABILIZAR, Criterio.CASILLA_ESPECIAL,
+								Criterio.INVALIDO)));
 
 	}
 
@@ -335,6 +333,38 @@ public class PrepAnalysis {
 			}
 			sb.append("\n\n\n");
 			return sb.toString();
+		}
+
+		public long getCasosFaltantesEPN() {
+			return epnIncompleto;
+		}
+
+		public long getCasosFaltantesAMLO() {
+			return amloIncompleto;
+		}
+
+		public long getCasosFaltantesJVM() {
+			return jvmIncompleto;
+		}
+
+		public long getCasosFaltantesGQT() {
+			return gqtIncompleto;
+		}
+
+		public long getCasosFaltantesNulos() {
+			return nulosIncompleto;
+		}
+
+		public long getCasosFaltantesNoRegistrados() {
+			return noRegistradosIncompleto;
+		}
+
+		public long getCasosErrorExcedeListaNominal() {
+			return errorExcedeListaNominal;
+		}
+
+		public long getCasosErrorTipoActa() {
+			return errorTipoActa;
 		}
 
 	}

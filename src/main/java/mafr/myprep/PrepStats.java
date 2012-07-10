@@ -18,5 +18,12 @@ public interface PrepStats {
 	long getGQT();
 	long getNulos();
 	long getNoRegistrados();		
-
+	long getCasosFaltantesEPN();
+	long getCasosFaltantesAMLO();
+	long getCasosFaltantesJVM();
+	long getCasosFaltantesGQT();
+	long getCasosFaltantesNulos();
+	long getCasosFaltantesNoRegistrados();
+	long getCasosErrorExcedeListaNominal();
+	long getCasosErrorTipoActa();
 }
