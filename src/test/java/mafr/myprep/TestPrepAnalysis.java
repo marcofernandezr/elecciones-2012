@@ -1,9 +1,9 @@
 package mafr.myprep;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +48,7 @@ public class TestPrepAnalysis {
 		assertEquals(registro.getNulos().longValue(), stats.getNulos());
 		assertEquals(registro.getNoRegistrados().longValue(), stats.getNoRegistrados());
 		assertEquals(registro.getListaNominal().longValue(), stats.getListaNominal());
+		assertEquals(1L, stats.getRegistros());
 		assertEquals(registro.getTotalVotosCalculado().longValue(), stats.getVotos());
 		long casosFaltantesEsperados = 0L;
 		long erroresEsperados = 0L;
@@ -68,12 +69,13 @@ public class TestPrepAnalysis {
 		TipoRegistro tipo = new TipoRegistro(Criterio.COMPLETO);
 		long casosFaltantesEsperados = 0L;
 		long erroresEsperados = 0L;
-		int times = 5;
+		long times = 5;
 		for (int i = 0; i < times; i++) {
 			prepAnalysis.addRegistro(tipo, registro);
 		}
 		PrepStats stats = prepAnalysis.getStats(tipo);
 		assertNotNull(stats);
+		assertEquals(times, stats.getRegistros());
 		assertEquals(registro.getAMLO().longValue() * times, stats.getAMLO());
 		assertEquals(registro.getEPN().longValue() * times, stats.getEPN());
 		assertEquals(registro.getGQT().longValue() * times, stats.getGQT());
@@ -107,6 +109,7 @@ public class TestPrepAnalysis {
 		for (TipoRegistro tipo : tipos) {
 			PrepStats stats = prepAnalysis.getStats(tipo);
 			assertNotNull(stats);
+			assertEquals(1L, stats.getRegistros());
 			assertEquals(registro.getAMLO().longValue(), stats.getAMLO());
 			assertEquals(registro.getEPN().longValue(), stats.getEPN());
 			assertEquals(registro.getGQT().longValue(), stats.getGQT());
@@ -137,6 +140,7 @@ public class TestPrepAnalysis {
 		}
 		PrepStats stats = prepAnalysis.getStats(tipo);
 		assertNotNull(stats);
+		assertEquals(times, stats.getRegistros());
 		assertEquals(times, stats.getCasosFaltantesAMLO());
 		assertEquals(times, stats.getCasosFaltantesEPN());
 		assertEquals(times, stats.getCasosFaltantesJVM());
@@ -163,6 +167,7 @@ public class TestPrepAnalysis {
 		}
 		PrepStats stats = prepAnalysis.getStats(tipo);
 		assertNotNull(stats);
+		assertEquals(times, stats.getRegistros());
 		assertEquals(times, stats.getCasosErrorExcedeListaNominal());
 		assertEquals(casosFaltantesEsperados, stats.getCasosFaltantesAMLO());
 		assertEquals(casosFaltantesEsperados, stats.getCasosFaltantesEPN());
@@ -190,6 +195,7 @@ public class TestPrepAnalysis {
 		PrepStats stats = prepAnalysis.getStats(tipo);
 		assertNotNull(stats);
 		long votosFaltantes = 0L;
+		assertEquals(times, stats.getRegistros());
 		assertEquals(votosFaltantes, stats.getCasosFaltantesAMLO());
 		assertEquals(votosFaltantes, stats.getCasosFaltantesEPN());
 		assertEquals(votosFaltantes, stats.getCasosFaltantesJVM());
@@ -216,6 +222,7 @@ public class TestPrepAnalysis {
 			prepAnalysis.addRegistro(tipo, registroParcialmenteIncompleto);
 		}
 		PrepStats stats = prepAnalysis.getStats(tipo);
+		assertEquals(times, stats.getRegistros());
 		assertEquals(registroParcialmenteIncompleto.getAMLO(true).longValue() * times, stats.getAMLO());
 		assertEquals(registroParcialmenteIncompleto.getEPN().longValue() * times, stats.getEPN());
 		assertEquals(registroParcialmenteIncompleto.getGQT().longValue() * times, stats.getGQT());
@@ -233,7 +240,80 @@ public class TestPrepAnalysis {
 		assertEquals(times, stats.getCasosFaltantesAMLO());
 		assertEquals(times, stats.getCasosFaltantesNoRegistrados());
 	}
-	
+
+	@Test
+	public void shouldCreateStatsFromOtherStats() throws Exception {
+		PrepAnalysis prepAnalysis = new PrepAnalysis();
+		TipoRegistro incompleto = new TipoRegistro(Criterio.INCOMPLETO);
+		TipoRegistro completo = new TipoRegistro(Criterio.COMPLETO);
+		prepAnalysis.addRegistro(completo, registro);
+		prepAnalysis.addRegistro(completo, registroExcedeListaNominal);
+		prepAnalysis.addRegistro(incompleto, registroIncompleto);
+		prepAnalysis.addRegistro(incompleto, registroParcialmenteIncompleto);
+		prepAnalysis.addRegistro(incompleto, registroTipoActaIncorrecta);
+
+		PrepStats stats = prepAnalysis.createStats(new TipoRegistro(Criterio.TODOS), completo, incompleto);
+		assertNotNull(stats);
+		assertEquals(getTotalAMLO(), stats.getAMLO());
+		assertEquals(getTotalEPN(), stats.getEPN());
+		assertEquals(getTotalJVM(), stats.getJVM());
+		assertEquals(getTotalGQT(), stats.getGQT());
+		assertEquals(getTotalNulos(), stats.getNulos());
+		assertEquals(getTotalNoRegistrados(), stats.getNoRegistrados());
+		assertEquals(5L, stats.getRegistros());
+		assertEquals(getTotalListaNominal(), stats.getListaNominal());
+		assertEquals(getTotalVotosCalculado(), stats.getVotos());
+		assertEquals(2L, stats.getCasosFaltantesAMLO());
+		assertEquals(1L, stats.getCasosFaltantesEPN());
+		assertEquals(1L, stats.getCasosFaltantesJVM());
+		assertEquals(1L, stats.getCasosFaltantesGQT());
+		assertEquals(1L, stats.getCasosFaltantesNulos());
+		assertEquals(2L, stats.getCasosFaltantesNoRegistrados());
+		assertEquals(1L, stats.getCasosErrorExcedeListaNominal());
+		assertEquals(1L, stats.getCasosErrorTipoActa());
+	}
+
+	private long getTotalVotosCalculado() {
+		return registro.getTotalVotosCalculado() + registroExcedeListaNominal.getTotalVotosCalculado() + registroParcialmenteIncompleto.getTotalVotosCalculado()
+				+ registroTipoActaIncorrecta.getTotalVotosCalculado() + registroIncompleto.getTotalVotosCalculado();
+	}
+
+	private long getTotalAMLO() {
+		return registro.getAMLO() + registroExcedeListaNominal.getAMLO() + registroParcialmenteIncompleto.getAMLO(true)
+				+ registroTipoActaIncorrecta.getAMLO();
+	}
+
+	private long getTotalEPN() {
+		return registro.getEPN() + registroExcedeListaNominal.getEPN() + registroParcialmenteIncompleto.getEPN(true)
+				+ registroTipoActaIncorrecta.getEPN();
+	}
+
+	private long getTotalJVM() {
+		return registro.getJVM() + registroExcedeListaNominal.getJVM() + registroParcialmenteIncompleto.getJVM()
+				+ registroTipoActaIncorrecta.getJVM();
+	}
+
+	private long getTotalGQT() {
+		return registro.getGQT() + registroExcedeListaNominal.getGQT() + registroParcialmenteIncompleto.getGQT()
+				+ registroTipoActaIncorrecta.getGQT();
+	}
+
+	private long getTotalNulos() {
+		return registro.getNulos() + registroExcedeListaNominal.getNulos() + registroParcialmenteIncompleto.getNulos()
+				+ registroTipoActaIncorrecta.getNulos();
+	}
+
+	private long getTotalNoRegistrados() {
+		return registro.getNoRegistrados() + registroExcedeListaNominal.getNoRegistrados()
+				+ registroTipoActaIncorrecta.getNoRegistrados();
+	}
+
+	private long getTotalListaNominal() {
+		return registro.getListaNominal() + registroExcedeListaNominal.getListaNominal()
+				+ registroTipoActaIncorrecta.getListaNominal() + registroIncompleto.getListaNominal()
+				+ registroParcialmenteIncompleto.getListaNominal();
+	}
+
 	@Test
 	public void shouldOverrideToString() throws Exception {
 		PrepAnalysis prepAnalysis = new PrepAnalysis();
@@ -241,13 +321,14 @@ public class TestPrepAnalysis {
 		TipoRegistro completo = new TipoRegistro(Criterio.COMPLETO);
 		prepAnalysis.addRegistro(completo, registro);
 		prepAnalysis.addRegistro(completo, registroExcedeListaNominal);
-		prepAnalysis.addRegistro(incompleto, registroExcedeListaNominal);
 		prepAnalysis.addRegistro(incompleto, registroIncompleto);
+		prepAnalysis.addRegistro(incompleto, registroParcialmenteIncompleto);
 		prepAnalysis.addRegistro(incompleto, registroTipoActaIncorrecta);
-		
+
 		String strAnalysis = prepAnalysis.toString();
 		assertNotNull(strAnalysis);
-		assertFalse(strAnalysis.isEmpty());
+		assertTrue(strAnalysis.contains(Criterio.INCOMPLETO.name()));
+		assertTrue(strAnalysis.contains(Criterio.COMPLETO.name()));
 	}
 
 }

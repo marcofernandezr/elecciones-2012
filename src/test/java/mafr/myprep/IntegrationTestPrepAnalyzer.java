@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-public class TestPrepAnalyzer {
+public class IntegrationTestPrepAnalyzer {
 
 	private PrepAnalyzer prepAnalyzer = new PrepAnalyzer();
 	

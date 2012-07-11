@@ -24,6 +24,10 @@ public class PrepAnalysis {
 		stats = new HashMap<TipoRegistro, PrepAnalysis.MyPrepStatImpl>();
 	}
 
+	public PrepAnalysis(PrepAnalysis analysis) {
+		this.stats = new HashMap<TipoRegistro, PrepAnalysis.MyPrepStatImpl>(analysis.stats);
+	}
+
 	public PrepStats getStats(TipoRegistro tipoRegistro) {
 		return stats.get(tipoRegistro);
 	}
@@ -112,41 +116,9 @@ public class PrepAnalysis {
 		}
 	}
 
-	public void finish() {
-		stats.put(new TipoRegistro(Criterio.TODOS),
-				addStats(new TipoRegistro(Criterio.COMPLETO), new TipoRegistro(Criterio.INCOMPLETO)));
-
-		stats.put(
-				new TipoRegistro(Criterio.CONTABILIZADO),
-				addStats(new TipoRegistro(Criterio.COMPLETO, Criterio.CONTABILIZADO), new TipoRegistro(
-						Criterio.INCOMPLETO, Criterio.CONTABILIZADO)));
-		stats.put(
-				new TipoRegistro(Criterio.SIN_CONTABILIZAR),
-				addStats(new TipoRegistro(Criterio.COMPLETO, Criterio.SIN_CONTABILIZAR), new TipoRegistro(
-						Criterio.INCOMPLETO, Criterio.SIN_CONTABILIZAR)));
-
-		stats.put(
-				new TipoRegistro(Criterio.CASILLA_ESPECIAL, Criterio.CONTABILIZADO),
-				addStats(new TipoRegistro(Criterio.COMPLETO, Criterio.CONTABILIZADO, Criterio.CASILLA_ESPECIAL),
-						new TipoRegistro(Criterio.INCOMPLETO, Criterio.CONTABILIZADO, Criterio.CASILLA_ESPECIAL)));
-
-		stats.put(
-				new TipoRegistro(Criterio.CASILLA_EXTRAORDINARIA, Criterio.CONTABILIZADO),
-				addStats(new TipoRegistro(Criterio.COMPLETO, Criterio.CONTABILIZADO, Criterio.CASILLA_EXTRAORDINARIA),
-						new TipoRegistro(Criterio.INCOMPLETO, Criterio.CONTABILIZADO, Criterio.CASILLA_EXTRAORDINARIA)));
-
-		stats.put(
-				new TipoRegistro(Criterio.SIN_CONTABILIZAR, Criterio.INVALIDO),
-				addStats(new TipoRegistro(Criterio.COMPLETO, Criterio.SIN_CONTABILIZAR, Criterio.CASILLA_NORMAL,
-						Criterio.INVALIDO), new TipoRegistro(Criterio.COMPLETO, Criterio.SIN_CONTABILIZAR,
-						Criterio.CASILLA_EXTRAORDINARIA, Criterio.INVALIDO), new TipoRegistro(Criterio.COMPLETO,
-						Criterio.SIN_CONTABILIZAR, Criterio.CASILLA_ESPECIAL, Criterio.INVALIDO), new TipoRegistro(
-						Criterio.INCOMPLETO, Criterio.SIN_CONTABILIZAR, Criterio.CASILLA_NORMAL, Criterio.INVALIDO),
-						new TipoRegistro(Criterio.INCOMPLETO, Criterio.SIN_CONTABILIZAR,
-								Criterio.CASILLA_EXTRAORDINARIA, Criterio.INVALIDO), new TipoRegistro(
-								Criterio.INCOMPLETO, Criterio.SIN_CONTABILIZAR, Criterio.CASILLA_ESPECIAL,
-								Criterio.INVALIDO)));
-
+	public PrepStats createStats(TipoRegistro nuevoTipo, TipoRegistro... tipos) {
+		stats.put(nuevoTipo, addStats(tipos));
+		return stats.get(nuevoTipo);
 	}
 
 	private MyPrepStatImpl addStats(TipoRegistro... tiposRegistro) {
@@ -180,6 +152,10 @@ public class PrepAnalysis {
 
 		}
 		return result;
+	}
+
+	public void reset() {
+		stats.clear();
 	}
 
 	@Override
